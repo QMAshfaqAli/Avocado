@@ -1,4 +1,0 @@
-Avocado
-=======
-
-Android Tanning Project
