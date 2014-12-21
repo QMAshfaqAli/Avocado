@@ -10,24 +10,31 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v7.widget.SearchView;
 
-import java.util.List;
+import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity implements OnQueryTextListener{
+public class MainActivity extends ActionBarActivity implements OnQueryTextListener {
 
-    private List<String> items;
+    private ArrayList<String> items = new ArrayList<String>();
     private Menu mainMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        items.add("Ashfaq");
+        items.add("Ashraf");
+        items.add("Aditya");
+        items.add("Porosh");
+        items.add("Ashad");
+        items.add("Adil");
+
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         this.mainMenu = menu;
 
@@ -41,12 +48,8 @@ public class MainActivity extends ActionBarActivity implements OnQueryTextListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -56,25 +59,22 @@ public class MainActivity extends ActionBarActivity implements OnQueryTextListen
 
     private void loadHistory(String query) {
 
-        // Cursor
-        String[] columns = new String[] { "_id", "text" };
-        Object[] temp = new Object[] { 0, "default" };
+        String[] columns = new String[]{"_id", "text"};
+        Object[] temp = new Object[]{0, ""};
 
         MatrixCursor cursor = new MatrixCursor(columns);
 
-        for(int i = 0; i < items.size(); i++) {
-
-            temp[0] = i;
-            temp[1] = items.get(i); //replaced s with i as s not used anywhere.
-
-            cursor.addRow(temp);
-
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).toLowerCase().contains(query)) {
+                temp[0] = i;
+                temp[1] = items.get(i);
+                cursor.addRow(temp);
+            }
         }
 
-        // SearchView
-        SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView search = (SearchView) mainMenu.findItem(R.id.search).getActionView();
-        //search.setSuggestionsAdapter(new ContactSearchAdapter(this, cursor, items));
+//        search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
         search.setSuggestionsAdapter(new ContactSearchAdapter(this, cursor, items));
     }
 
