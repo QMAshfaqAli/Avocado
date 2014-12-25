@@ -1,6 +1,5 @@
 package com.avocado.contacts;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -13,11 +12,11 @@ import android.widget.TextView;
 
 public class ContactSearchAdapter extends CursorAdapter {
 
-    private ArrayList<String> items;
+    private List<String> items;
 
     private TextView text;
 
-    public ContactSearchAdapter(Context context, Cursor cursor, ArrayList<String> items) {
+    public ContactSearchAdapter(Context context, Cursor cursor, List<String> items) {
         super(context, cursor, false);
         this.items = items;
     }
