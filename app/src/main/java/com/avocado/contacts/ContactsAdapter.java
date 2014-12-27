@@ -1,6 +1,9 @@
 package com.avocado.contacts;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +20,8 @@ import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 public class ContactsAdapter extends ArrayAdapter<Contact>{
@@ -24,12 +29,23 @@ public class ContactsAdapter extends ArrayAdapter<Contact>{
     ImageLoader loader = ImageLoader.getInstance();
     DisplayImageOptions options;
     LayoutInflater inflater;
+    Context context;
+    private boolean filtered = false;
 
     public ContactsAdapter(Context context, List<Contact> objects) {
         super(context, 0, objects);
+        this.context = context;
         initOptions();
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    public void setFiltered(boolean isFiltered) {
+        this.filtered = isFiltered;
+    }
+
+    public boolean isFiltered() {
+        return filtered;
     }
 
     @Override
@@ -55,10 +71,25 @@ public class ContactsAdapter extends ArrayAdapter<Contact>{
 
         holder.tvName.setText(aContact.getName());
         holder.tvContact.setText(aContact.getContact());
+
+        if (filtered) {
+            holder.tvContact.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvContact.setVisibility(View.GONE);
+        }
+
+        holder.tvContact.setText(aContact.getContact());
         holder.tvEmail.setText(aContact.getEmail());
         String tempImg = aContact.getThumb();
-        if(tempImg != "") {
-            loader.displayImage(tempImg, holder.ivThumb, options);
+
+        if(tempImg != null && tempImg != ""){
+            try {
+                holder.ivThumb.setImageBitmap(getContactBitmapFromURI(context, Uri.parse(tempImg)));
+            }catch (FileNotFoundException e){
+
+            }
+        }else{
+            holder.ivThumb.setImageResource(R.drawable.ic_logo);
         }
         return convertView;
     }
@@ -74,10 +105,10 @@ public class ContactsAdapter extends ArrayAdapter<Contact>{
         loader.init(getConfiguration());
 
         options = new DisplayImageOptions.Builder()
-                .displayer(new RoundedBitmapDisplayer(55))
+                .displayer(new RoundedBitmapDisplayer(100))
                 .showImageOnLoading(R.drawable.ic_launcher)
-                .showImageForEmptyUri(R.drawable.ic_launch)
-                .showImageOnFail(R.drawable.ic_logo)
+                .showImageForEmptyUri(R.drawable.ic_logo)
+                .showImageOnFail(R.drawable.ic_launch)
                 .resetViewBeforeLoading(false).cacheInMemory(true)
                 .cacheOnDisk(true).build();
 
@@ -93,5 +124,13 @@ public class ContactsAdapter extends ArrayAdapter<Contact>{
                 .diskCache(new UnlimitedDiscCache(cacheDir)) // default
                 .diskCacheSize(50 * 1024 * 1024).build();
         return config;
+    }
+
+    public static Bitmap getContactBitmapFromURI(Context context, Uri uri) throws FileNotFoundException {
+        InputStream input = context.getContentResolver().openInputStream(uri);
+        if (input == null) {
+            return null;
+        }
+        return BitmapFactory.decodeStream(input);
     }
 }

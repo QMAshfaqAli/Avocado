@@ -8,7 +8,7 @@ import android.os.Handler;
 
 public class Splashscreen extends Activity {
 
-    public static final int SPLASH_TIME_OUT = 5000;
+    public static final int SPLASH_TIME_OUT = 3000;
     MediaPlayer mp;
 
     @Override

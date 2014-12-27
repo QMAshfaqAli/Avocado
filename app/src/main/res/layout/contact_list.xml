@@ -1,34 +1,51 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="85dp"
-    android:layout_height="100dp"
-    android:layout_margin="10dp"
-    android:padding="10dp"
-    android:overScrollMode="never"
-    android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
-    <ImageView android:id="@+id/ivThumb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_launcher" />
 
-    <TextView android:id="@+id/tvName"
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/ivThumb"
+        android:layout_height="@dimen/thumb_photo_height"
+        android:id="@+id/ivThumb"
         android:layout_centerInParent="true"
-        android:textSize="14sp"
-        android:background="#fff"
-        android:textColor="#000000" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_logo"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
-    <TextView android:id="@+id/tvContact"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:layout_height="@dimen/display_name_height"
+        android:text="New Text"
+        android:textColor="#000"
+        android:gravity="center"
+        android:id="@+id/tvName"
+        android:layout_below="@+id/ivThumb"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
-    <TextView android:id="@+id/tvEmail"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:layout_height="@dimen/contact_no_height"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="10sp"
+        android:text="Small Text"
+        android:gravity="center"
+        android:id="@+id/tvContact"
+        android:layout_below="@+id/tvName"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
-</LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/tvEmail"
+        android:layout_below="@+id/tvContact"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
+</RelativeLayout>

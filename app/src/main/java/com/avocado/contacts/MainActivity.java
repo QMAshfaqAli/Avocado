@@ -4,7 +4,6 @@ import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
@@ -13,6 +12,7 @@ import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +20,10 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity implements OnQueryTextListener {
 
+    final String DISPLAY_NAME = "display_name";
     GridView gvContacts;
-    private List<String> items = new ArrayList<>();
+    ContactsAdapter adapter = null;
+    List<Contact> searchContactList = new ArrayList<>();
     private Menu mainMenu;
 
     @Override
@@ -31,15 +33,14 @@ public class MainActivity extends ActionBarActivity implements OnQueryTextListen
 
         gvContacts = (GridView) findViewById(R.id.gvContacts);
         getNumber(this.getContentResolver());
-
     }
 
     private void getNumber(ContentResolver cr) {
 
-        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, " display_name ASC ");
-
+        List<Contact> contactList = new ArrayList<>();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, DISPLAY_NAME + " ASC");
         if (cur.getCount() > 0) {
-            List<Contact> contactList = new ArrayList<>();
+
             while (cur.moveToNext()) {
                 String img = "", emailList = "";
 
@@ -86,22 +87,25 @@ public class MainActivity extends ActionBarActivity implements OnQueryTextListen
                         }
                         emailCur.close();
                         Contact contactModel = new Contact(name, phoneNo, emailList, img);
-                        items.add(name);
                         contactList.add(contactModel);
                     }
                     pCur.close();
                 }
             }
 
+            searchContactList = contactList;
 
-            gvContacts.setAdapter(new ContactsAdapter(MainActivity.this, contactList));
+            adapter = new ContactsAdapter(MainActivity.this, contactList);
+            gvContacts.setAdapter(adapter);
+
+
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        this.mainMenu = menu;
+        mainMenu = menu;
 
         SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView search = (SearchView) menu.findItem(R.id.search).getActionView();
@@ -120,21 +124,28 @@ public class MainActivity extends ActionBarActivity implements OnQueryTextListen
 
     private void loadHistory(String query) {
 
-        String[] columns = new String[]{"_id", "text"};
-        Object[] temp = new Object[]{0, ""};
+        boolean isFiltered = false;
+        List<Contact> searchList = new ArrayList<>();
 
-        MatrixCursor cursor = new MatrixCursor(columns);
+        for (int i = 0; i < searchContactList.size(); i++) {
 
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).toLowerCase().contains(query)) {
-                temp[0] = i;
-                temp[1] = items.get(i);
-                cursor.addRow(temp);
+            if(query.matches("[+.0-9.-.(.)]+")){
+                if (searchContactList.get(i).getContact().contains(query)) {
+                    isFiltered = true;
+                }
+            }else{
+                if (searchContactList.get(i).getName().toLowerCase().contains(query)) {
+                    searchList.add(searchContactList.get(i));
+                    isFiltered = false;
+                }
             }
+
         }
 
-        final SearchView search = (SearchView) mainMenu.findItem(R.id.search).getActionView();
-        search.setSuggestionsAdapter(new ContactSearchAdapter(this, cursor, items));
+        adapter = new ContactsAdapter(MainActivity.this, searchList);
+        adapter.setFiltered(isFiltered);
+        gvContacts.setAdapter(adapter);
+
     }
 
     @Override
@@ -145,6 +156,6 @@ public class MainActivity extends ActionBarActivity implements OnQueryTextListen
     @Override
     public boolean onQueryTextChange(String s) {
         loadHistory(s);
-        return true;
+        return false;
     }
 }
